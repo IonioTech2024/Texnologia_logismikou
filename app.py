@@ -67,7 +67,7 @@ if uploaded_file is not None:
 
         with tab1:
             st.write("Here's a preview of your data:")
-            st.dataframe(data.head())
+            st.dataframe(data)  # Display all data
 
         with tab2:
             # 2D Visualization Tab
