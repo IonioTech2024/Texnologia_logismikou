@@ -6,9 +6,11 @@ from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.cluster import KMeans
+from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
@@ -38,13 +40,14 @@ def plot_2d(data, labels, algorithm='PCA'):
     
     fig, ax = plt.subplots(figsize=(8, 6))
     sns.scatterplot(x='Component 1', y='Component 2', hue='Label', data=df, palette='viridis', ax=ax)
+    ax.set_title(f'2D Visualization using {algorithm}')
     st.pyplot(fig)
 
 # Main app title
 st.title('Data Visualization and Machine Learning with Streamlit')
 
 # Setting up the tabs
-tab1, tab2, tab3, tab4 = st.tabs(["Home", "Data Visualization", "Machine Learning", "Your Name"])
+tab1, tab2, tab3, tab4 = st.tabs(["Home", "Data Visualization", "Machine Learning", "Info"])
 
 with tab1:
     st.header("Home")
@@ -68,6 +71,7 @@ if uploaded_file is not None:
             st.write("General Distribution Plot")
             fig, ax = plt.subplots(figsize=(10, 6))
             sns.histplot(data=y, kde=True, ax=ax)
+            ax.set_title('General Distribution of the Labels')
             st.pyplot(fig)
 
         with tab2:
@@ -89,6 +93,7 @@ if uploaded_file is not None:
                 st.write("Correlation Heatmap")
                 fig, ax = plt.subplots(figsize=(10, 8))
                 sns.heatmap(X.corr(), annot=True, cmap='coolwarm', ax=ax)
+                ax.set_title('Correlation Heatmap')
                 st.pyplot(fig)
 
             elif chart_type == 'Pairplot':
@@ -100,6 +105,7 @@ if uploaded_file is not None:
                 st.write("Distribution Plot")
                 fig, ax = plt.subplots(figsize=(10, 6))
                 sns.histplot(data=y, kde=True, ax=ax)
+                ax.set_title('Distribution of the Labels')
                 st.pyplot(fig)
 
         with tab3:
@@ -114,30 +120,80 @@ if uploaded_file is not None:
 
                 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
 
-                model = RandomForestClassifier(random_state=random_state)
-                model.fit(X_train, y_train)
-                y_pred = model.predict(X_test)
-                accuracy = accuracy_score(y_test, y_pred)
+                classifiers = {
+                    'Random Forest': RandomForestClassifier(random_state=random_state),
+                    'SVM': SVC(random_state=random_state),
+                    'Logistic Regression': LogisticRegression(random_state=random_state)
+                }
 
-                st.write(f"Classification Accuracy: {accuracy:.2f}")
+                best_accuracy = 0
+                best_model_name = ""
+                best_model = None
 
-                # Confusion Matrix
-                st.subheader("Confusion Matrix")
-                cm = confusion_matrix(y_test, y_pred)
-                plt.figure(figsize=(8, 6))
-                sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=model.classes_, yticklabels=model.classes_)
-                st.pyplot()
+                for name, model in classifiers.items():
+                    model.fit(X_train, y_train)
+                    y_pred = model.predict(X_test)
+                    accuracy = accuracy_score(y_test, y_pred)
+
+                    st.write(f"## {name}")
+                    st.write(f"Accuracy: {accuracy:.2f}")
+                    st.write("Classification Report:")
+                    report = classification_report(y_test, y_pred, output_dict=False)
+                    st.text(report)
+
+                    if accuracy > best_accuracy:
+                        best_accuracy = accuracy
+                        best_model_name = name
+                        best_model = model
+
+                    # Confusion Matrix
+                    st.subheader(f"Confusion Matrix - {name}")
+                    cm = confusion_matrix(y_test, y_pred)
+                    plt.figure(figsize=(8, 6))
+                    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=model.classes_, yticklabels=model.classes_)
+                    plt.title(f'Confusion Matrix - {name}')
+                    st.pyplot()
+
+                st.write(f"### Best Model: {best_model_name} with accuracy of {best_accuracy:.2f}")
 
             elif ml_task == 'Clustering':
                 st.subheader("Clustering")
                 n_clusters = st.sidebar.slider("Number of clusters", 2, 10, 3)
-                model = KMeans(n_clusters=n_clusters, random_state=42)
-                clusters = model.fit_predict(X)
+                kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+                clusters = kmeans.fit_predict(X)
 
                 st.write("Cluster Visualization")
                 plot_2d(X, clusters, 'PCA')
 
+                st.write("Cluster Centers")
+                st.dataframe(kmeans.cluster_centers_)
+
+                st.write("Inertia (Sum of squared distances):")
+                st.write(kmeans.inertia_)
+
+                st.write("Silhouette Score:")
+                from sklearn.metrics import silhouette_score
+                score = silhouette_score(X, clusters)
+                st.write(score)
+
 with tab4:
-    # Extra tab to just show your name
-    st.header("Your Name")
-    st.write("Stergios Moutzikos")  # Replace "John Doe" with your actual name
+    # Info tab to provide information about the app
+    st.header("Info")
+    st.write("""
+        ## About this App
+        This application is designed to help users visualize and analyze their data using various machine learning techniques.
+
+        ### Features:
+        - **Data Visualization**: Use PCA and t-SNE to visualize your data in 2D.
+        - **Exploratory Data Analysis**: Generate correlation heatmaps, pairplots, and distribution plots to understand your data better.
+        - **Machine Learning**: Perform classification using Random Forest, SVM, and Logistic Regression. Perform clustering using KMeans.
+
+        ### How to Use:
+        1. **Upload Your Data**: Use the sidebar to upload your CSV or Excel file.
+        2. **Explore Your Data**: View a preview of your data and explore it using various plots.
+        3. **Apply Machine Learning**: Select a machine learning task (Classification or Clustering) and view detailed results, including performance metrics and visualizations.
+        
+
+        Feel free to reach out if you have any questions or feedback!
+    """)
+
