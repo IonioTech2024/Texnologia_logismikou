@@ -6,25 +6,21 @@ from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.cluster import KMeans
+
+st.set_option('deprecation.showPyplotGlobalUse', False)
 
 # Function to load the data from a file
 def load_data(file):
     if file.name.endswith('csv'):
-        data = pd.read_csv(file)
+        return pd.read_csv(file)
     elif file.name.endswith('xlsx'):
-        data = pd.read_excel(file)
+        return pd.read_excel(file)
     else:
         st.error("Unsupported file format")
         return None
-
-    if data.shape[1] < 2:
-        st.error("The dataset should have at least one feature and one label column")
-        return None
-
-    return data
 
 # Function to do some cool 2D plotting
 def plot_2d(data, labels, algorithm='PCA'):
@@ -40,9 +36,9 @@ def plot_2d(data, labels, algorithm='PCA'):
     df = pd.DataFrame(transformed, columns=['Component 1', 'Component 2'])
     df['Label'] = labels
     
-    plt.figure(figsize=(8, 6))
-    sns.scatterplot(x='Component 1', y='Component 2', hue='Label', data=df, palette='viridis')
-    st.pyplot(plt.gcf())
+    fig, ax = plt.subplots(figsize=(8, 6))
+    sns.scatterplot(x='Component 1', y='Component 2', hue='Label', data=df, palette='viridis', ax=ax)
+    st.pyplot(fig)
 
 # Main app title
 st.title('Data Visualization and Machine Learning with Streamlit')
@@ -67,7 +63,12 @@ if uploaded_file is not None:
 
         with tab1:
             st.write("Here's a preview of your data:")
-            st.dataframe(data)  # Display all data
+            st.dataframe(data)  # Display all the data
+
+            st.write("General Distribution Plot")
+            fig, ax = plt.subplots(figsize=(10, 6))
+            sns.histplot(data=y, kde=True, ax=ax)
+            st.pyplot(fig)
 
         with tab2:
             # 2D Visualization Tab
@@ -86,21 +87,20 @@ if uploaded_file is not None:
 
             if chart_type == 'Correlation Heatmap':
                 st.write("Correlation Heatmap")
-                plt.figure(figsize=(10, 8))
-                sns.heatmap(X.corr(), annot=True, cmap='coolwarm')
-                st.pyplot(plt.gcf())
+                fig, ax = plt.subplots(figsize=(10, 8))
+                sns.heatmap(X.corr(), annot=True, cmap='coolwarm', ax=ax)
+                st.pyplot(fig)
 
             elif chart_type == 'Pairplot':
                 st.write("Pairplot")
                 sns.pairplot(data, hue=data.columns[-1])
-                st.pyplot(plt.gcf())
+                st.pyplot()
 
             elif chart_type == 'Distribution Plot':
                 st.write("Distribution Plot")
-                feature = st.sidebar.selectbox("Select a feature", X.columns)
-                plt.figure(figsize=(10, 6))
-                sns.histplot(data[feature], kde=True)
-                st.pyplot(plt.gcf())
+                fig, ax = plt.subplots(figsize=(10, 6))
+                sns.histplot(data=y, kde=True, ax=ax)
+                st.pyplot(fig)
 
         with tab3:
             # Machine Learning Tabs
@@ -121,6 +121,13 @@ if uploaded_file is not None:
 
                 st.write(f"Classification Accuracy: {accuracy:.2f}")
 
+                # Confusion Matrix
+                st.subheader("Confusion Matrix")
+                cm = confusion_matrix(y_test, y_pred)
+                plt.figure(figsize=(8, 6))
+                sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=model.classes_, yticklabels=model.classes_)
+                st.pyplot()
+
             elif ml_task == 'Clustering':
                 st.subheader("Clustering")
                 n_clusters = st.sidebar.slider("Number of clusters", 2, 10, 3)
@@ -133,4 +140,4 @@ if uploaded_file is not None:
 with tab4:
     # Extra tab to just show your name
     st.header("Your Name")
-    st.write("Stergios Moutzikos")
+    st.write("Stergios Moutzikos")  # Replace "John Doe" with your actual name
