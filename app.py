@@ -13,12 +13,18 @@ from sklearn.cluster import KMeans
 # Function to load the data from a file
 def load_data(file):
     if file.name.endswith('csv'):
-        return pd.read_csv(file)
+        data = pd.read_csv(file)
     elif file.name.endswith('xlsx'):
-        return pd.read_excel(file)
+        data = pd.read_excel(file)
     else:
         st.error("Unsupported file format")
         return None
+
+    if data.shape[1] < 2:
+        st.error("The dataset should have at least one feature and one label column")
+        return None
+
+    return data
 
 # Function to do some cool 2D plotting
 def plot_2d(data, labels, algorithm='PCA'):
@@ -36,7 +42,7 @@ def plot_2d(data, labels, algorithm='PCA'):
     
     plt.figure(figsize=(8, 6))
     sns.scatterplot(x='Component 1', y='Component 2', hue='Label', data=df, palette='viridis')
-    st.pyplot(plt)
+    st.pyplot(plt.gcf())
 
 # Main app title
 st.title('Data Visualization and Machine Learning with Streamlit')
@@ -61,7 +67,7 @@ if uploaded_file is not None:
 
         with tab1:
             st.write("Here's a preview of your data:")
-            st.dataframe(data.head())
+            st.dataframe(data)  # Display all data
 
         with tab2:
             # 2D Visualization Tab
@@ -76,18 +82,25 @@ if uploaded_file is not None:
             st.sidebar.header("Exploratory Data Analysis")
             st.subheader("Exploratory Data Analysis")
             st.write("Select a chart to explore your data")
-            chart_type = st.sidebar.selectbox("Pick a chart type", ['Correlation Heatmap', 'Pairplot'])
+            chart_type = st.sidebar.selectbox("Pick a chart type", ['Correlation Heatmap', 'Pairplot', 'Distribution Plot'])
 
             if chart_type == 'Correlation Heatmap':
                 st.write("Correlation Heatmap")
                 plt.figure(figsize=(10, 8))
                 sns.heatmap(X.corr(), annot=True, cmap='coolwarm')
-                st.pyplot(plt)
+                st.pyplot(plt.gcf())
 
             elif chart_type == 'Pairplot':
                 st.write("Pairplot")
                 sns.pairplot(data, hue=data.columns[-1])
-                st.pyplot()
+                st.pyplot(plt.gcf())
+
+            elif chart_type == 'Distribution Plot':
+                st.write("Distribution Plot")
+                feature = st.sidebar.selectbox("Select a feature", X.columns)
+                plt.figure(figsize=(10, 6))
+                sns.histplot(data[feature], kde=True)
+                st.pyplot(plt.gcf())
 
         with tab3:
             # Machine Learning Tabs
@@ -120,4 +133,4 @@ if uploaded_file is not None:
 with tab4:
     # Extra tab to just show your name
     st.header("Your Name")
-    st.write("Stergios Moutzikos")  # Replace "John Doe" with your actual name
+    st.write("Stergios Moutzikos")
