@@ -11,6 +11,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.cluster import KMeans
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
+from io import BytesIO
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
@@ -19,13 +20,22 @@ def load_data(file):
     if file.name.endswith('csv'):
         return pd.read_csv(file)
     elif file.name.endswith('xlsx'):
-        return pd.read_excel(file)
+        return pd.read_excel(BytesIO(file.read()), engine='openpyxl')
+    elif file.name.endswith('xls'):
+        return pd.read_excel(BytesIO(file.read()), engine='xlrd')
     else:
         st.error("Unsupported file format")
         return None
 
 # Function to do some cool 2D plotting
 def plot_2d(data, labels, algorithm='PCA'):
+    # Select only numeric columns
+    data_numeric = data.select_dtypes(include=['number'])
+
+    if data_numeric.empty:
+        st.error("No numeric data available for visualization.")
+        return
+
     if algorithm == 'PCA':
         model = PCA(n_components=2)
     elif algorithm == 't-SNE':
@@ -34,7 +44,7 @@ def plot_2d(data, labels, algorithm='PCA'):
         st.error("Unsupported algorithm")
         return None
 
-    transformed = model.fit_transform(data)
+    transformed = model.fit_transform(data_numeric)
     df = pd.DataFrame(transformed, columns=['Component 1', 'Component 2'])
     df['Label'] = labels
     
@@ -42,6 +52,7 @@ def plot_2d(data, labels, algorithm='PCA'):
     sns.scatterplot(x='Component 1', y='Component 2', hue='Label', data=df, palette='viridis', ax=ax)
     ax.set_title(f'2D Visualization using {algorithm}')
     st.pyplot(fig)
+
 
 # Main app title
 st.title('Data Visualization and Machine Learning with Streamlit')
@@ -54,7 +65,7 @@ with tab1:
     st.write("Welcome to the Data Visualization and Machine Learning App!")
 
 # File uploader on the sidebar
-uploaded_file = st.sidebar.file_uploader("Choose a file (CSV or Excel)", type=['csv', 'xlsx'])
+uploaded_file = st.sidebar.file_uploader("Choose a file (CSV or Excel)", type=['csv', 'xlsx', 'xls'])
 
 if uploaded_file is not None:
     data = load_data(uploaded_file)
@@ -137,9 +148,16 @@ if uploaded_file is not None:
 
                     st.write(f"## {name}")
                     st.write(f"Accuracy: {accuracy:.2f}")
+
+                    # Classification Report
                     st.write("Classification Report:")
-                    report = classification_report(y_test, y_pred, output_dict=False)
-                    st.text(report)
+                    report = classification_report(y_test, y_pred, output_dict=True)
+                    report_df = pd.DataFrame(report).transpose()
+                    
+                    # Keep only relevant columns and format
+                    report_df = report_df[['precision', 'recall', 'f1-score', 'support']]
+                    report_df = report_df.round(2)
+                    st.table(report_df)
 
                     if accuracy > best_accuracy:
                         best_accuracy = accuracy
@@ -187,6 +205,15 @@ with tab4:
         - **Data Visualization**: Use PCA and t-SNE to visualize your data in 2D.
         - **Exploratory Data Analysis**: Generate correlation heatmaps, pairplots, and distribution plots to understand your data better.
         - **Machine Learning**: Perform classification using Random Forest, SVM, and Logistic Regression. Perform clustering using KMeans.
+
+        ### Contributions by Stergios Moutzikos:
+        - **Data Loading**: Efficient handling and loading of CSV and Excel files.
+        - **Table Specifications**: Ensuring the correct display and management of data tables.
+        - **2D Visualization Tab**: Implementing PCA and t-SNE for data visualization.
+        - **Machine Learning Tabs**: Developing and structuring the machine learning workflow.
+        - **Results and Comparison**: Comparing the results of different machine learning models.
+        - **Info Tab**: Creating this information section.
+        - **Docker and GitHub**: Setting up the application for deployment using Docker and maintaining the codebase on GitHub.
 
         ### How to Use:
         1. **Upload Your Data**: Use the sidebar to upload your CSV or Excel file.
