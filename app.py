@@ -15,6 +15,19 @@ from io import BytesIO
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
+# Custom CSS to set the background image
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background-image: url("https://img.freepik.com/free-vector/gradient-black-background-with-wavy-lines_23-2149151738.jpg");
+        background-size: cover;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # Function to load the data from a file
 def load_data(file):
     if file.name.endswith('csv'):
@@ -221,4 +234,3 @@ with tab4:
         3. **Apply Machine Learning**: Select a machine learning task (Classification or Clustering) and view detailed results, including performance metrics and visualizations.
         
         """)
-
