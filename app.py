@@ -232,5 +232,5 @@ with tab4:
         1. **Upload Your Data**: Use the sidebar to upload your CSV or Excel file.
         2. **Explore Your Data**: View a preview of your data and explore it using various plots.
         3. **Apply Machine Learning**: Select a machine learning task (Classification or Clustering) and view detailed results, including performance metrics and visualizations.
-    
+        
         """)
