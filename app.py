@@ -193,7 +193,4 @@ with tab4:
         2. **Explore Your Data**: View a preview of your data and explore it using various plots.
         3. **Apply Machine Learning**: Select a machine learning task (Classification or Clustering) and view detailed results, including performance metrics and visualizations.
         
-
-        Feel free to reach out if you have any questions or feedback!
-    """)
-
+        """)
