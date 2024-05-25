@@ -206,31 +206,40 @@ if uploaded_file is not None:
                 from sklearn.metrics import silhouette_score
                 score = silhouette_score(X, clusters)
                 st.write(score)
-
 with tab4:
-    # Info tab to provide information about the app
+    # Info tab to provide detailed information about the app and its development process
     st.header("Info")
     st.write("""
         ## About this App
-        This application is designed to help users visualize and analyze their data using various machine learning techniques.
+        This application is designed to empower users to visualize and analyze their data using a variety of machine learning techniques. Whether you're exploring patterns, classifying data, or clustering similar instances, this app offers a user-friendly interface for insightful analysis.
 
         ### Features:
-        - **Data Visualization**: Use PCA and t-SNE to visualize your data in 2D.
-        - **Exploratory Data Analysis**: Generate correlation heatmaps, pairplots, and distribution plots to understand your data better.
-        - **Machine Learning**: Perform classification using Random Forest, SVM, and Logistic Regression. Perform clustering using KMeans.
+        - **Data Visualization**: Leverage principal component analysis (PCA) and t-distributed stochastic neighbor embedding (t-SNE) to project high-dimensional data into 2D space, enabling intuitive visualization.
+        - **Exploratory Data Analysis (EDA)**: Generate correlation heatmaps, pairplots, and distribution plots to gain deeper insights into the underlying structure of your dataset.
+        - **Machine Learning**: Conduct classification tasks using algorithms such as Random Forest, Support Vector Machine (SVM), and Logistic Regression. Explore unsupervised learning with KMeans clustering.
 
-        ### Contributions by Stergios Moutzikos:
-        - **Data Loading**: Efficient handling and loading of CSV and Excel files.
-        - **Table Specifications**: Ensuring the correct display and management of data tables.
-        - **2D Visualization Tab**: Implementing PCA and t-SNE for data visualization.
-        - **Machine Learning Tabs**: Developing and structuring the machine learning workflow.
-        - **Results and Comparison**: Comparing the results of different machine learning models.
-        - **Info Tab**: Creating this information section.
-        - **Docker and GitHub**: Setting up the application for deployment using Docker and maintaining the codebase on GitHub.
+        ### Team Contributions:
+        - **Stergios Moutzikos**:
+            - **Data Loading**: Implemented efficient handling and loading of CSV and Excel files to ensure seamless data integration.
+            - **Table Specifications**: Designed and implemented features to ensure the correct display and management of data tables.
+            - **2D Visualization Tab**: Developed functionality to visualize data using PCA and t-SNE, enhancing data exploration capabilities.
+            - **Machine Learning Tabs**: Structured and implemented the machine learning workflow, enabling users to perform classification and clustering tasks effortlessly.
+            - **Results and Comparison**: Implemented features to compare the performance of different machine learning models, aiding users in selecting the most suitable algorithm for their data.
+            - **Info Tab**: Created this information section to provide users with comprehensive details about the application and its development process.
+            - **Docker and GitHub**: Orchestrated the deployment of the application using Docker and maintained the codebase on GitHub, facilitating collaboration and version control.
 
-        ### How to Use:
-        1. **Upload Your Data**: Use the sidebar to upload your CSV or Excel file.
-        2. **Explore Your Data**: View a preview of your data and explore it using various plots.
-        3. **Apply Machine Learning**: Select a machine learning task (Classification or Clustering) and view detailed results, including performance metrics and visualizations.
+        - **Nikolaos Nikolaou**:
+            - **Info Tab**: Dedicated efforts to create a comprehensive information section, detailing the application's functionality, development team, and individual contributions.
+            - **Docker and GitHub**: Led the development and distribution of the application through Docker, fostering effective team communication, collaboration, and code management via GitHub.
+            - **Report**: Played a pivotal role in compiling a detailed report using LaTeX, encompassing the design, implementation, analysis results, conclusions, and individual contributions of each team member.
+            - **UML Diagram**: Illustrated the architecture of the application and user interface through a UML diagram, providing a clear overview of the system's structure.
+            - **Software Version Lifecycle**: Established a model for the software version lifecycle, tailored to the Agile methodology and optimized for widespread deployment to a diverse audience.
+
+        - **Ioannis Savoulidis**:
+            - **Data Loading**: Ensured efficient handling and loading of CSV and Excel files, streamlining the data import process for users.
+            - **Table Specifications**: Implemented features to guarantee the correct display and management of data tables, enhancing the user experience and data accessibility.
+            - **2D Visualization Tab**: Developed functionality for PCA and t-SNE-based data visualization, enhancing users' ability to explore and understand their data.
+            - **Machine Learning Tabs**: Contributed to structuring and implementing the machine learning workflow, facilitating seamless execution of classification and clustering tasks.
+            - **Results and Comparison**: Played a crucial role in comparing the results of various machine learning models, enabling informed decision-making regarding algorithm selection.
         
         """)
