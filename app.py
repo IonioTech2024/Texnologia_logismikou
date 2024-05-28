@@ -1,17 +1,21 @@
-import streamlit as st
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.cluster import KMeans
-from sklearn.svm import SVC
-from sklearn.linear_model import LogisticRegression
-from io import BytesIO
+try:
+    import streamlit as st
+    import pandas as pd
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+    from sklearn.decomposition import PCA
+    from sklearn.manifold import TSNE
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.cluster import KMeans
+    from sklearn.svm import SVC
+    from sklearn.linear_model import LogisticRegression
+    from io import BytesIO
+except ImportError as e:
+    st.error(f"Missing library: {e.name}. Please install it to run the app.")
+
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
@@ -30,19 +34,23 @@ st.markdown(
 
 # Function to load the data from a file
 def load_data(file):
-    if file.name.endswith('csv'):
-        return pd.read_csv(file)
-    elif file.name.endswith('xlsx'):
-        return pd.read_excel(BytesIO(file.read()), engine='openpyxl')
-    elif file.name.endswith('xls'):
-        return pd.read_excel(BytesIO(file.read()), engine='xlrd')
-    else:
-        st.error("Unsupported file format")
+    try:
+        if file.name.endswith('csv'):
+            return pd.read_csv(file)
+        elif file.name.endswith('xlsx'):
+            return pd.read_excel(BytesIO(file.read()), engine='openpyxl')
+        elif file.name.endswith('xls'):
+            return pd.read_excel(BytesIO(file.read()), engine='xlrd')
+        else:
+            st.error("Unsupported file format")
+            return None
+    except Exception as e:
+        st.error(f"Error loading file: {e}")
         return None
+
 
 # Function to do some cool 2D plotting
 def plot_2d(data, labels, algorithm='PCA'):
-    # Select only numeric columns
     data_numeric = data.select_dtypes(include=['number'])
 
     if data_numeric.empty:
@@ -60,11 +68,14 @@ def plot_2d(data, labels, algorithm='PCA'):
     transformed = model.fit_transform(data_numeric)
     df = pd.DataFrame(transformed, columns=['Component 1', 'Component 2'])
     df['Label'] = labels
-    
+
     fig, ax = plt.subplots(figsize=(8, 6))
     sns.scatterplot(x='Component 1', y='Component 2', hue='Label', data=df, palette='viridis', ax=ax)
     ax.set_title(f'2D Visualization using {algorithm}')
+    ax.set_xlabel("Component 1")
+    ax.set_ylabel("Component 2")
     st.pyplot(fig)
+
 
 
 # Main app title
